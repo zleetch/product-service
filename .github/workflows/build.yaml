@@ -25,12 +25,24 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.ref_name == 'main' && 'latest' || github.ref_name }}
       - name: Build & Push docker image
         uses: docker/build-push-action@v5
+        id: push
         with:
           context: .
-          file: dockerfile/rust/Dockerfile
+          file: Dockerfile
           build-args: app_name=server
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.ref_name == 'main' && 'latest' || github.ref_name }}
+      - name: Generate artifacts attestations
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ghcr.io
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
