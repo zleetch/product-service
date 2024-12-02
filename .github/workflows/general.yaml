@@ -8,7 +8,7 @@ env:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-test
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
@@ -18,7 +18,7 @@ jobs:
 
   fmt:
     name: Fmt
-    runs-on: ubuntu-test
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
