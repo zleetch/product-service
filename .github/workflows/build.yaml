@@ -38,11 +38,12 @@ jobs:
           file: docker/rust/Dockerfile
           build-args: app_name=server
           push: true
+          labels: ${{ steps.meta.outputs.labels }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.ref_name == 'main' && 'latest' || github.ref_name }}
       - name: Generate artifacts attestations
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ghcr.io
+          subject-name: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.ref_name == 'main' && 'latest' || github.ref_name }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
