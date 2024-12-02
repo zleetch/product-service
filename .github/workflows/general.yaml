@@ -35,6 +35,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
+      - uses: arduino/setup-protoc@v3
       - uses: Swatinem/rust-cache@v2
       - name: Linting
         run: cargo clippy -- -D warnings
@@ -48,6 +49,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v3
       - name: Generate code coverage
         run: |
           cargo tarpaulin --verbose --workspace
