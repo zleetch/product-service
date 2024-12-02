@@ -186,7 +186,7 @@ impl Inventory for StoreInventory {
         }
 
         let item = item.quantity;
-        stock.quantity = stock.quantity + item;
+        stock.quantity += item;
 
         Ok(Response::new(InventoryUpdateResponse {
             status: "success".into(),
