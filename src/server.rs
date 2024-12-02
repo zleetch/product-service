@@ -45,7 +45,7 @@ impl Inventory for StoreInventory {
         let item = request.into_inner();
 
         let sku = match item.identifier.as_ref() {
-            Some(id) if id.sku == "" => return Err(Status::invalid_argument(EMPTY_SKU_ERR)),
+            Some(id) if id.sku.is_empty() => return Err(Status::invalid_argument(EMPTY_SKU_ERR)),
             Some(id) => id.sku.to_owned(),
             None => return Err(Status::invalid_argument(NO_ID_ERR)),
         };
@@ -59,11 +59,11 @@ impl Inventory for StoreInventory {
         };
 
         let mut map = self.inventory.lock().await;
-        if let Some(_) = map.get(&sku) {
+        if map.get(&sku).is_some() {
             return Err(Status::already_exists(DUP_ITEM_ERR));
         }
 
-        map.insert(sku.into(), item);
+        map.insert(sku, item);
 
         Ok(Response::new(InventoryChangeResponse {
             status: "success".into(),
@@ -76,7 +76,7 @@ impl Inventory for StoreInventory {
     ) -> Result<tonic::Response<crate::store::InventoryChangeResponse>, tonic::Status> {
         let item = request.into_inner();
 
-        if item.sku == "" {
+        if item.sku.is_empty() {
             return Err(Status::invalid_argument(EMPTY_SKU_ERR));
         }
 
@@ -97,7 +97,7 @@ impl Inventory for StoreInventory {
     ) -> Result<tonic::Response<crate::store::Item>, tonic::Status> {
         let item = request.into_inner();
 
-        if item.sku == "" {
+        if item.sku.is_empty() {
             return Err(Status::invalid_argument(EMPTY_SKU_ERR));
         }
 
@@ -138,7 +138,7 @@ impl Inventory for StoreInventory {
             None => return Err(Status::internal(NO_STOCK_ERR)),
         };
 
-        if item.sku == "" {
+        if item.sku.is_empty() {
             return Err(Status::invalid_argument(EMPTY_SKU_ERR));
         }
 
@@ -151,7 +151,7 @@ impl Inventory for StoreInventory {
                 return Err(Status::invalid_argument(LOW_QUANT_ERR));
             }
 
-            item => stock.quantity - item as u64,
+            item => stock.quantity - item,
         };
 
         Ok(Response::new(InventoryUpdateResponse {
@@ -177,7 +177,7 @@ impl Inventory for StoreInventory {
             None => return Err(Status::internal(NO_STOCK_ERR)),
         };
 
-        if item.sku == "" {
+        if item.sku.is_empty() {
             return Err(Status::invalid_argument(EMPTY_SKU_ERR));
         }
 
@@ -185,9 +185,8 @@ impl Inventory for StoreInventory {
             return Err(Status::invalid_argument(DUP_QUANT_ERR));
         }
 
-        stock.quantity = match item.quantity {
-            item => stock.quantity + item as u64,
-        };
+        let item = item.quantity;
+        stock.quantity = stock.quantity + item;
 
         Ok(Response::new(InventoryUpdateResponse {
             status: "success".into(),
@@ -202,7 +201,7 @@ impl Inventory for StoreInventory {
     ) -> Result<Response<InventoryUpdateResponse>, Status> {
         let item = request.into_inner();
 
-        if item.sku == "" {
+        if item.sku.is_empty() {
             return Err(Status::invalid_argument(EMPTY_SKU_ERR));
         }
 
